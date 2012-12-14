@@ -1,9 +1,9 @@
 === Jetpack Mobile Theme Featured images ===
-Contributors: jeherve, hd-J
+Contributors: jeherve, hd-J, evansolomon
 Tags: WordPress.com, Jetpack, mobile, minileven, featured images
 Requires at least: 3.2
 Tested up to: 3.5
-Stable tag: 1.1
+Stable tag: 1.2
 
 Adds Featured Images before the content on the home page, in Jetpack Mobile theme
 
@@ -25,6 +25,9 @@ This plugin is a work in progress. You can report issues [here](http://wordpress
 6. Enjoy :)
 
 == Changelog ==
+
+= 1.2 =
+* Simplify coding style, props @evansolomon
 
 = 1.1 =
 * Do not add any Featured Image in the menu
