@@ -1,19 +1,21 @@
 === Jetpack Mobile Theme Featured images ===
-Contributors: jeherve, hd-J, evansolomon
+Contributors: jeherve, evansolomon
 Tags: WordPress.com, Jetpack, mobile, minileven, featured images
 Requires at least: 3.2
 Tested up to: 3.5
-Stable tag: 1.2
+Stable tag: 1.3
 
-Adds Featured Images before the content on the home page, in Jetpack Mobile theme
+Adds Featured Images before the content, in the Jetpack Mobile theme
 
 == Description ==
 
-Adds Featured Images before the content on the home page, in Jetpack Mobile theme
+Adds Featured Images before the content, in the Jetpack Mobile theme
 
 Important: for this plugin to work, you must activate [Jetpack](http://wordpress.org/extend/plugins/jetpack/) first, and activate the Mobile Theme module.
 
-This plugin is a work in progress. You can report issues [here](http://wordpress.org/extend/plugins/jetpack-mobile-theme-featured-images/), or submit a pull request [on GitHub](https://github.com/jeherve/jp-minileven-featured).
+By default, this plugin only adds Featured Images on the home page. If you want to display them on the Post pages as well, go to the Jetpack Menu, and click on "Configure" under the Mobile Theme module. You will be able to enable Featured Images on Posts pages from there. 
+
+This plugin is a work in progress. You can report issues [here](http://wordpress.org/support/plugin/jetpack-mobile-theme-featured-images), or submit a pull request [on GitHub](https://github.com/jeherve/jp-minileven-featured).
 
 
 == Installation ==
@@ -22,9 +24,13 @@ This plugin is a work in progress. You can report issues [here](http://wordpress
 2. Activate the Mobile Theme module
 3. Install the Jetpack Mobile Theme Featured images plugin via the WordPress.org plugin repository, or via your dashboard
 4. Activate the plugin
-6. Enjoy :)
+5. Enjoy :)
 
 == Changelog ==
+
+= 1.3 =
+* Do not add Featured Images on tablets
+* Add a new option to display featured images on Post pages as well
 
 = 1.2 =
 * Simplify coding style, props @evansolomon
