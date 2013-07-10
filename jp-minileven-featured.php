@@ -4,49 +4,12 @@
  * Plugin URI: http://wordpress.org/extend/plugins/jetpack-mobile-theme-featured-images/
  * Description: Adds Featured Images before the content on the home page, in Jetpack Mobile theme
  * Author: Jeremy Herve
- * Version: 1.4
+ * Version: 1.5
  * Author URI: http://jeremyherve.com
  * License: GPL2+
  * Text Domain: jetpack
  */
 
-// Check if we are on mobile
-// Props @saracannon http://ran.ge/2012/12/05/parallax-and-mobile/
-function tweakjp_is_mobile() {
-    if ( ! class_exists( 'Jetpack_User_Agent_Info' ) )
-    	return false;
-    if ( !isset($_SERVER["HTTP_USER_AGENT"]) || (isset($_COOKIE['akm_mobile']) && $_COOKIE['akm_mobile'] == 'false') )
-		return false;
-
-    $ua_info = new Jetpack_User_Agent_Info();
-    return ( jetpack_is_mobile() );
-}
-
-// Let's add the Featured Image
-function tweakjp_maybe_add_filter() {
-	
-	// On mobile?
-	if ( tweakjp_is_mobile() ) {
-	
-		// Do we want to display the Featured images only on the home page?
-		if ( !is_home() && get_option( 'jp_mini_featured_evwhere' ) != '1' ) {
-			return;
-			
-		// Add the image
-		} else {
-			add_filter( 'the_title', 'tweakjp_minileven_featuredimage' );
-		}
-	
-	}
-}
-add_action( 'wp_head', 'tweakjp_maybe_add_filter' );
-
-function tweakjp_minileven_featuredimage( $title ) {
-	$tweak = has_post_thumbnail() && in_the_loop();
-	$featured_content = ( $tweak ) ? get_the_post_thumbnail() : '';
-
-	return $title . $featured_content;
-}
 
 /*
  * Options page
@@ -78,7 +41,7 @@ function jp_mini_featured_action_links( $actions ) {
 function jp_mini_featured_configuration_load() {
 	if ( isset( $_POST['action'] ) && $_POST['action'] == 'save_options' && $_POST['_wpnonce'] == wp_create_nonce( 'jp_mini_featured' ) ) {
 
-		update_option( 'jp_mini_featured_evwhere', ( isset( $_POST['jp_mini_featured_evwhere'] ) ) ? '1' : '0' );
+		update_option( 'wp_mobile_featured_images', ( isset( $_POST['wp_mobile_featured_images'] ) ) ? '1' : '0' );
 
 		Jetpack::state( 'message', 'module_configured' );
 		wp_safe_redirect( Jetpack::module_configuration_url( 'minileven' ) );
@@ -88,7 +51,7 @@ function jp_mini_featured_configuration_load() {
 
 // Draw the menu page itself
 function jp_mini_featured_do_page() {
-	$feat_home = ( '1' == get_option( 'jp_mini_featured_evwhere' ) ) ? 1 : 0;
+	$feat_home = ( 1 == get_option( 'wp_mobile_featured_images' ) ) ? 1 : 0;
 	?>
 	<h3>Featured Images</h3>
 	<form method="post">
@@ -96,11 +59,13 @@ function jp_mini_featured_do_page() {
 		<?php wp_nonce_field( 'jp_mini_featured' ); ?>
 		<table class="form-table">
 			<tr valign="top">
-				<th scope="row"><?php _e( 'Featured Images', 'jetpack' ); ?></th>
+				<th scope="row"><?php _e( 'Show featured images on front page and archive pages', 'jetpack' ); ?></th>
 			<td>
-				<label>
-					<input name="jp_mini_featured_evwhere" type="checkbox" value="1" <?php checked( 1, $feat_home, true ); ?> />
-					<?php _e ( 'Display Featured Images on Post Pages as well', 'jetpack' ); ?>
+				<label for="wp_mobile_featured_images">
+					<input name="wp_mobile_featured_images" type="radio" value="1" class="code" <?php checked( 1, $feat_home, true ); ?> /> 
+					<?php _e( 'Yes' ); ?> 
+					<input name="wp_mobile_featured_images" type="radio" value="0" class="code" <?php checked( 0, $feat_home, true ); ?> /> 
+					<?php _e( 'No' ); ?> 
 				</label>
 			</td>
 			</tr>
@@ -108,6 +73,6 @@ function jp_mini_featured_do_page() {
 		<p class="submit">
 		<input type="submit" class="button-primary" value="<?php _e( 'Save Configuration', 'jetpack' ) ?>" />
 		</p>
-	</form>
-	<?php	
+	</form> 
+<?php 	
 }
