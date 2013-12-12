@@ -1,6 +1,6 @@
 <?php
 /*
- * Plugin Name: Jetpack Mobile Theme Featured images
+ * Plugin Name: Mobile Theme Featured images for Jetpack
  * Plugin URI: http://wordpress.org/extend/plugins/jetpack-mobile-theme-featured-images/
  * Description: Adds Featured Images before the content on the home page, in Jetpack Mobile theme
  * Author: Jeremy Herve
