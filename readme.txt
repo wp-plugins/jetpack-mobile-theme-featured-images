@@ -3,7 +3,7 @@ Contributors: jeherve, evansolomon
 Tags: WordPress.com, Jetpack, mobile, minileven, featured images
 Requires at least: 4.1
 Tested up to: 4.2.1
-Stable tag: 1.6
+Stable tag: 1.5
 
 Adds Featured Images before the content, in the Jetpack Mobile theme
 
