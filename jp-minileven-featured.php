@@ -1,78 +1,131 @@
 <?php
 /*
- * Plugin Name: Mobile Theme Featured images for Jetpack
- * Plugin URI: http://wordpress.org/extend/plugins/jetpack-mobile-theme-featured-images/
- * Description: Adds Featured Images before the content on the home page, in Jetpack Mobile theme
+ * Plugin Name: Jetpack Mobile Theme Featured images
+ * Plugin URI: http://wordpress.org/plugins/jetpack-mobile-theme-featured-images/
+ * Description: Adds Featured Images before the content, in Jetpack's Mobile theme
  * Author: Jeremy Herve
- * Version: 1.5
- * Author URI: http://jeremyherve.com
+ * Version: 1.6
+ * Author URI: http://jeremy.hu/
  * License: GPL2+
- * Text Domain: jetpack
+ * Text Domain: jp_mini_featured
  */
 
+// Load language files
+function jp_mini_featured_textdomain() {
+	load_plugin_textdomain( 'jp_mini_featured', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
+}
+add_action( 'plugins_loaded', 'jp_mini_featured_textdomain' );
+
+// Change the filter thanks to our options
+function jp_mini_featured_maybe_display() {
+
+	$options = get_option( 'jp_mini_featured_options' );
+
+	if ( isset( $options['show']['front'] ) && ( is_home() || is_front_page() || is_search() || is_archive() ) ) {
+		return true;
+	} elseif ( isset( $options['show']['post'] ) && is_single() ) {
+		return true;
+	} elseif ( isset( $options['show']['page'] ) && is_page() ) {
+		return true;
+	} else {
+		return false;
+	}
+
+}
+add_filter( 'minileven_show_featured_images', 'jp_mini_featured_maybe_display' );
 
 /*
  * Options page
  */
-
-add_action( 'admin_init', 'jp_mini_featured_init' );
-
 // Init plugin options
 function jp_mini_featured_init() {
 	add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), 'jp_mini_featured_action_links' );
-	
-	register_setting( 'jp_mini_featured_options', 'jp_mini_featured_strings', 'jp_mini_featured_validate' );
-	
-	// Add settings to the Minileven Options page
-	add_action( 'jetpack_module_configuration_screen_minileven', 'jp_mini_featured_configuration_load' );
-	add_action( 'jetpack_module_configuration_screen_minileven', 'jp_mini_featured_do_page' );
+
+	register_setting( 'jp_mini_featured_group', 'jp_mini_featured_options' );
 }
+add_action( 'admin_init', 'jp_mini_featured_init' );
 
 // Plugin settings link
 function jp_mini_featured_action_links( $actions ) {
 	return array_merge(
-		array( 'settings' => sprintf( '<a href="admin.php?page=jetpack&configure=minileven">%s</a>', __( 'Settings', 'jetpack' ) ) ),
+		array( 'settings' => sprintf( '<a href="options-general.php?page=jp_mini_featured">%s</a>', __( 'Settings', 'jetpack' ) ) ),
 		$actions
 	);
 	return $actions;
 }
 
-// Prepare option page
-function jp_mini_featured_configuration_load() {
-	if ( isset( $_POST['action'] ) && $_POST['action'] == 'save_options' && $_POST['_wpnonce'] == wp_create_nonce( 'jp_mini_featured' ) ) {
-
-		update_option( 'wp_mobile_featured_images', ( isset( $_POST['wp_mobile_featured_images'] ) ) ? '1' : '0' );
-
-		Jetpack::state( 'message', 'module_configured' );
-		wp_safe_redirect( Jetpack::module_configuration_url( 'minileven' ) );
-		exit;
-	}
+// Add menu page
+function jp_mini_featured_add_page() {
+	add_options_page(
+		__( 'Mobile Featured Images', 'jp_mini_featured' ),
+		__( 'Mobile Featured Image Settings', 'jp_mini_featured' ),
+		'manage_options',
+		'jp_mini_featured',
+		'jp_mini_featured_do_page'
+	);
 }
+add_action( 'admin_menu', 'jp_mini_featured_add_page' );
 
 // Draw the menu page itself
 function jp_mini_featured_do_page() {
-	$feat_home = ( 1 == get_option( 'wp_mobile_featured_images' ) ) ? 1 : 0;
 	?>
-	<h3>Featured Images</h3>
-	<form method="post">
-		<input type="hidden" name="action" value="save_options" />
-		<?php wp_nonce_field( 'jp_mini_featured' ); ?>
-		<table class="form-table">
-			<tr valign="top">
-				<th scope="row"><?php _e( 'Show featured images on front page and archive pages', 'jetpack' ); ?></th>
-			<td>
-				<label for="wp_mobile_featured_images">
-					<input name="wp_mobile_featured_images" type="radio" value="1" class="code" <?php checked( 1, $feat_home, true ); ?> /> 
-					<?php _e( 'Yes' ); ?> 
-					<input name="wp_mobile_featured_images" type="radio" value="0" class="code" <?php checked( 0, $feat_home, true ); ?> /> 
-					<?php _e( 'No' ); ?> 
-				</label>
-			</td>
-			</tr>
-		</table>
-		<p class="submit">
-		<input type="submit" class="button-primary" value="<?php _e( 'Save Configuration', 'jetpack' ) ?>" />
-		</p>
-	</form> 
-<?php 	
+	<div class="wrap">
+		<h2><?php _e( 'Featured Image Settings', 'jp_mini_featured' ); ?></h2>
+
+		<?php if ( ! class_exists( 'Jetpack' ) || ! Jetpack::is_module_active( 'minileven' ) ) : ?>
+			<div class="error"><p>
+				<?php
+				printf(__( 'To use the Featured Images for Jetpack plugin, you\'ll need to install and activate <a href="%1$s">Jetpack</a> first, and <a href="%2$s">activate the Mobile Theme module</a>.'),
+				'plugin-install.php?tab=search&s=jetpack&plugin-search-input=Search+Plugins',
+				'admin.php?page=jetpack_modules',
+				'jp_mini_featured'
+				);
+				?>
+			</p></div>
+		<?php endif; // End check if Jetpack and the Mobile Theme are active ?>
+
+		<form method="post" action="options.php">
+			<?php
+
+			settings_fields( 'jp_mini_featured_group' );
+			$options = get_option( 'jp_mini_featured_options' );
+
+			// Default to show Featured Images on the front page only
+			if ( ! isset( $options['show'] ) ) {
+				$options['show'] = array(
+					'front' => 1,
+					'post'  => 0,
+					'page'  => 0,
+				);
+			}
+			?>
+
+			<table class="form-table">
+				<tr valign="top">
+					<th scope="row"><?php _e( 'Where do you want Featured Images to appear?', 'jp_mini_featured' ); ?></th>
+					<td>
+						<label>
+						<input type="checkbox" name="jp_mini_featured_options[show][front]" value="1" <?php if ( isset( $options['show']['front'] ) ) echo 'checked="checked"'; ?> />
+						<?php _e( 'Front Page, Archive Pages, and Search Results', 'jetpack' ); ?>
+						</label>
+						<br>
+						<label>
+						<input type="checkbox" name="jp_mini_featured_options[show][post]" value="1" <?php if ( isset( $options['show']['post'] ) ) echo 'checked="checked"'; ?> />
+						<?php _e( 'Posts' ); ?>
+						</label>
+						<br>
+						<label>
+						<input type="checkbox" name="jp_mini_featured_options[show][page]" value="1" <?php if ( isset( $options['show']['page'] ) ) echo 'checked="checked"'; ?> />
+						<?php _e( 'Pages' ); ?>
+						</label>
+					</td>
+				</tr>
+			</table>
+
+			<p class="submit">
+				<input type="submit" class="button-primary" value="<?php esc_attr_e( 'Save Changes' ); ?>" />
+			</p>
+		</form>
+	</div>
+	<?php
 }
